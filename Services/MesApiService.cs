@@ -75,8 +75,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrls("Start", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode;
-            string responseBody;
+            int? statusCode=null;
+            string responseBody=string.Empty;
 
             try
             {
