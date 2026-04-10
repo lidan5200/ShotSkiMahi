@@ -200,16 +200,16 @@ namespace ShotSkiMahiD.Services
                 
                 if (getSfcKeyResponse.Success && getSfcKeyResponse.Result == "PASS")
                 {
-                    _logService.LogInfo($"GetSfcKey接口返回PASS，写入D3000=2");
-                    _plcService.WritePlc1Register(PlcRegisterAddress.D3000, PlcWriteValue.Fail);
-                    UpdateProcessState(ProcessState.Error);
-                    ResetProcess();
+                    _logService.LogInfo($"GetSfcKey接口返回PASS，写入D3000=1");
+                    _plcService.WritePlc1Register(PlcRegisterAddress.D3000, PlcWriteValue.Pass);
+                    UpdateProcessState(ProcessState.WaitingForD3005);
                 }
                 else
                 {
-                    _logService.LogInfo($"GetSfcKey接口返回FAIL，写入D3000=1");
-                    _plcService.WritePlc1Register(PlcRegisterAddress.D3000, PlcWriteValue.Pass);
-                    UpdateProcessState(ProcessState.WaitingForD3005);
+                    _logService.LogInfo($"GetSfcKey接口返回FAIL，写入D3000=2");
+                    _plcService.WritePlc1Register(PlcRegisterAddress.D3000, PlcWriteValue.Fail);
+                    UpdateProcessState(ProcessState.Error);
+                    ResetProcess();
                 }
             }
             catch (Exception ex)
