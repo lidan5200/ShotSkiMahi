@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using ShotSkiMahiD.Models;
@@ -7,6 +8,7 @@ namespace ShotSkiMahiD.Services
     public class ProductionStatsService
     {
         private readonly string _filePath;
+        private readonly LogService _logService;
         private readonly object _lock = new();
         private ProductionStats _stats;
 
@@ -14,12 +16,15 @@ namespace ShotSkiMahiD.Services
 
         public ProductionStats CurrentStats => _stats;
 
-        public ProductionStatsService(string dataDirectory)
+        public ProductionStatsService(string dataDirectory, LogService logService)
         {
+            if (dataDirectory == null) throw new ArgumentNullException(nameof(dataDirectory));
+            _filePath = Path.Combine(dataDirectory, "production_stats.json");
+            _logService = logService ?? throw new ArgumentNullException(nameof(logService));
+
             if (!Directory.Exists(dataDirectory))
                 Directory.CreateDirectory(dataDirectory);
 
-            _filePath = Path.Combine(dataDirectory, "production_stats.json");
             _stats = Load();
         }
 
@@ -33,7 +38,10 @@ namespace ShotSkiMahiD.Services
                     return JsonConvert.DeserializeObject<ProductionStats>(json) ?? CreateDefault();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logService.Log($"加载生产统计数据失败: {ex.Message}", "WARN", "ProductionStatsService");
+            }
 
             return CreateDefault();
         }
@@ -51,7 +59,10 @@ namespace ShotSkiMahiD.Services
                     var json = JsonConvert.SerializeObject(_stats, Formatting.Indented);
                     File.WriteAllText(_filePath, json);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    _logService.Log($"保存生产统计数据失败: {ex.Message}", "WARN", "ProductionStatsService");
+                }
 
                 OnStatsChanged?.Invoke(_stats);
             }
@@ -95,7 +106,10 @@ namespace ShotSkiMahiD.Services
                 var json = JsonConvert.SerializeObject(_stats, Formatting.Indented);
                 File.WriteAllText(_filePath, json);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logService.Log($"持久化生产统计数据失败: {ex.Message}", "WARN", "ProductionStatsService");
+            }
         }
 
         private static ProductionStats CreateDefault() => new();

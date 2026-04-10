@@ -56,19 +56,21 @@ namespace ShotSkiMahiD
             var mesConfigIniPath = Path.Combine(baseDirectory, "cfg", "mes_config.ini");
             var logDirectory = Path.Combine(baseDirectory, "Logs");
             
-            var configService = new ConfigService(settingIniPath, mesConfigIniPath);
+            var logService = new LogService(logDirectory, 7);
+            var configService = new ConfigService(settingIniPath, mesConfigIniPath, logService);
             var systemConfig = configService.LoadSystemConfig();
             var mesConfig = configService.LoadMesConfig();
             
             services.AddSingleton(configService);
             services.AddSingleton(systemConfig);
             services.AddSingleton(mesConfig);
-            
-            services.AddSingleton<LogService>(sp => 
-                new LogService(logDirectory, mesConfig.Config.LogKeepDays));
+            services.AddSingleton(logService);
 
             services.AddSingleton<ProductionStatsService>(sp =>
-                new ProductionStatsService(logDirectory));
+            {
+                var logService = sp.GetRequiredService<LogService>();
+                return new ProductionStatsService(logDirectory, logService);
+            });
             
             services.AddSingleton<PlcService>(sp => 
                 new PlcService(systemConfig.Plc1Config, systemConfig.Plc2Config));
