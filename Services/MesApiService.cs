@@ -75,8 +75,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrls("Start", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode = null;
-            string responseBody = string.Empty;
+            int? statusCode;
+            string responseBody;
 
             try
             {
@@ -123,8 +123,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrls("GetSfcKey", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode = null;
-            string responseBody = string.Empty;
+            int? statusCode;
+            string responseBody;
 
             try
             {
@@ -176,8 +176,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrls("AddSfcKey", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode = null;
-            string responseBody = string.Empty;
+            int? statusCode;
+            string responseBody;
 
             try
             {
@@ -237,8 +237,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrlsFromObject("TestDataCollect2MainChild", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode = null;
-            string responseBody = string.Empty;
+            int? statusCode;
+            string responseBody;
 
             try
             {
@@ -285,8 +285,8 @@ namespace ShotSkiMahiD.Services
             var (originalUrl, requestUrl) = BuildUrls("Complete", paramObject);
 
             Models.ApiResponse response;
-            int? statusCode = null;
-            string responseBody = string.Empty;
+            int? statusCode;
+            string responseBody;
 
             try
             {
@@ -451,7 +451,7 @@ namespace ShotSkiMahiD.Services
             }
             catch { }
 
-            return body.Length > 2000 ? body.Substring(0, 2000) + "...(截断)" : body;
+            return body.Length > 2000 ? string.Concat(body.AsSpan(0, 2000), "...(截断)") : body;
         }
 
         #endregion

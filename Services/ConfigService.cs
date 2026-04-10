@@ -7,16 +7,18 @@ namespace ShotSkiMahiD.Services
     {
         private readonly string _settingIniPath;
         private readonly string _mesConfigIniPath;
+        private readonly LogService _logService;
         private FileSystemWatcher? _mesConfigWatcher;
         private Timer? _debounceTimer;
         private bool _disposed;
 
         public event Action<Models.MesConfig>? OnMesConfigChanged;
 
-        public ConfigService(string settingIniPath, string mesConfigIniPath)
+        public ConfigService(string settingIniPath, string mesConfigIniPath, LogService logService)
         {
-            _settingIniPath = settingIniPath;
-            _mesConfigIniPath = mesConfigIniPath;
+            _settingIniPath = settingIniPath ?? throw new ArgumentNullException(nameof(settingIniPath));
+            _mesConfigIniPath = mesConfigIniPath ?? throw new ArgumentNullException(nameof(mesConfigIniPath));
+            _logService = logService ?? throw new ArgumentNullException(nameof(logService));
 
             StartMesConfigWatcher();
         }
@@ -52,8 +54,9 @@ namespace ShotSkiMahiD.Services
                 var newConfig = LoadMesConfig();
                 OnMesConfigChanged?.Invoke(newConfig);
             }
-            catch
+            catch (Exception ex)
             {
+                _logService.Log($"MES配置热重载失败: {ex.Message}", "WARN", "ConfigService");
             }
         }
 
@@ -270,8 +273,9 @@ namespace ShotSkiMahiD.Services
                 var ini = new INIFile(_mesConfigIniPath);
                 return ini.IniReadValue("SYSTEM", "JSONURL");
             }
-            catch
+            catch (Exception ex)
             {
+                _logService.Log($"读取MES BaseURL失败: {ex.Message}", "WARN", "ConfigService");
                 return string.Empty;
             }
         }
