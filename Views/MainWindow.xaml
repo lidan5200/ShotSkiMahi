@@ -1,0 +1,857 @@
+<Window x:Class="ShotSkiMahiD.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:behaviors="clr-namespace:ShotSkiMahiD.Behaviors"
+        mc:Ignorable="d"
+        Title="ShotSki Mahi 组装工作站" Height="900" Width="1400"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFF5F5F5">
+
+    <Window.Resources>
+        <!-- 状态颜色转换器 -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+        <!-- 状态指示器样式 -->
+        <Style x:Key="StatusIndicatorStyle" TargetType="Border">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+
+        <!-- 信号状态样式 -->
+        <Style x:Key="SignalOnStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FF27AE60"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#FF27AE60" BlurRadius="10" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SignalOffStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FF95A5A6"/>
+        </Style>
+
+        <!-- 组装状态样式 -->
+        <Style x:Key="AssemblyAllowStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FF27AE60"/>
+            <Setter Property="BorderBrush" Value="#FF1E8449"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#FF27AE60" BlurRadius="15" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AssemblyDenyStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FFE74C3C"/>
+            <Setter Property="BorderBrush" Value="#FFC0392B"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#FFE74C3C" BlurRadius="15" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 区域标题样式 -->
+        <Style x:Key="SectionHeaderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FF34495E"/>
+            <Setter Property="CornerRadius" Value="4,4,0,0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+
+        <!-- 内容区域样式 -->
+        <Style x:Key="ContentAreaStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFBDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="0,0,4,4"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- 数据标签样式 -->
+        <Style x:Key="DataLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FF7F8C8D"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- 数据值样式 -->
+        <Style x:Key="DataValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#FF2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <!-- 只读文本框样式 -->
+        <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Background" Value="#FFECF0F1"/>
+            <Setter Property="BorderBrush" Value="#FFBDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+
+        <!-- 日志条目样式 -->
+        <DataTemplate x:Key="LogEntryTemplate">
+            <Border Padding="5,3" Background="Transparent">
+                <TextBlock Text="{Binding}" FontSize="11" FontFamily="Consolas" TextWrapping="Wrap"/>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ========== 标题栏 ========== -->
+        <Border Grid.Row="0" Background="#FF2C3E50" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 标题 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="28" 
+                               Foreground="#FF3498DB" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="ShotSki Mahi 组装工作站" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Assembly Station Control System" FontSize="11" Foreground="#FF95A5A6" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 控制按钮 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Command="{Binding StartCommand}" Width="100" Height="40" Margin="0,0,10,0"
+                            Background="#FF27AE60" Foreground="White" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0"/>
+                            <TextBlock Text="启动"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding StopCommand}" Width="100" Height="40" Margin="0,0,10,0"
+                            Background="#FFE74C3C" Foreground="White" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0"/>
+                            <TextBlock Text="停止"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ResetCommand}" Width="100" Height="40" Margin="0,0,10,0"
+                            Background="#FFF39C12" Foreground="White" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0"/>
+                            <TextBlock Text="复位"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding EmergencyStopCommand}" Width="120" Height="40"
+                            Background="#FFC0392B" Foreground="White" FontWeight="Bold" BorderBrush="#FF922B21" BorderThickness="2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0"/>
+                            <TextBlock Text="紧急停止"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ViewLogCommand}" Width="120" Height="40" Margin="10,0,0,0"
+                            Background="#FF3498DB" Foreground="White" FontWeight="Bold"
+                            ToolTip="查看完整API调用日志（含URL、请求、响应）">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0"/>
+                            <TextBlock Text="查看日志"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ========== 状态栏 ========== -->
+        <Border Grid.Row="1" Background="#FF3498DB" Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 当前状态 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Style="{StaticResource StatusIndicatorStyle}" Background="White"/>
+                    <TextBlock Text="当前状态:" FontSize="14" Foreground="White" Opacity="0.9" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CurrentStateText}" FontSize="18" FontWeight="Bold" 
+                               Foreground="White" Margin="10,0,30,0" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 状态消息 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14" 
+                               Foreground="White" Opacity="0.8" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="13" Foreground="White" 
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <!-- PLC1 连接状态 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,10,0">
+                    <TextBlock Text="PLC1:" FontSize="12" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    <Border Width="12" Height="12" CornerRadius="6" Margin="6,0,0,0"
+                            Background="{Binding Plc1ConnectionStatusColor}">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#FF27AE60" BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                        </Border.Effect>
+                    </Border>
+                </StackPanel>
+
+                <!-- PLC2 连接状态 -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,10,0">
+                    <TextBlock Text="PLC2:" FontSize="12" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    <Border Width="12" Height="12" CornerRadius="6" Margin="6,0,0,0"
+                            Background="{Binding Plc2ConnectionStatusColor}">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#FF27AE60" BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                        </Border.Effect>
+                    </Border>
+                </StackPanel>
+
+                <!-- MES 连接状态 -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                    <TextBlock Text="MES:" FontSize="12" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    <Border Width="12" Height="12" CornerRadius="6" Margin="6,0,0,0"
+                            Background="{Binding MesConnectionStatusColor}">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#FF27AE60" BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                        </Border.Effect>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ========== 主内容区 ========== -->
+        <Grid Grid.Row="2" Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="380"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== 左侧：扫码与验证区 ===== -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <!-- 组装状态可视化 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <TextBlock Text="组装状态指示" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <Grid Height="100">
+                        <Border x:Name="AssemblyStatusBorder" CornerRadius="8" Padding="20">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#FF95A5A6"/>
+                                    <Setter Property="BorderBrush" Value="#FFBDC3C7"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AssemblyStatusText}" Value="可组装">
+                                            <Setter Property="Background" Value="#FF27AE60"/>
+                                            <Setter Property="BorderBrush" Value="#FF1E8449"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="#FF27AE60" BlurRadius="15" ShadowDepth="0"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AssemblyStatusText}" Value="不可组装">
+                                            <Setter Property="Background" Value="#FFE74C3C"/>
+                                            <Setter Property="BorderBrush" Value="#FFC0392B"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="#FFE74C3C" BlurRadius="15" ShadowDepth="0"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding AssemblyStatusIcon}" 
+                                           FontFamily="Segoe MDL2 Assets" FontSize="48" Foreground="White"/>
+                                <StackPanel Grid.Column="1" Margin="15,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding AssemblyStatusText}" FontSize="24" 
+                                               FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="{Binding AssemblyStatusDescription}" FontSize="12" 
+                                               Foreground="White" Opacity="0.9" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- 扫码数据区 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <TextBlock Text="扫码数据输入" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <StackPanel>
+                        <!-- 产品条码 -->
+                        <TextBlock Text="产品条码 (ProductBarcode)" Style="{StaticResource DataLabelStyle}"/>
+                        <TextBox Text="{Binding ProductBarcode, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+
+                        <!-- 小件条码 -->
+                        <TextBlock Text="小件条码 (MagnetBatchCode)" Style="{StaticResource DataLabelStyle}"/>
+                        <TextBox Text="{Binding SmallPartBarcode, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+
+                        <!-- 校验状态 -->
+                        <TextBlock Text="SFC Key 校验状态" Style="{StaticResource DataLabelStyle}"/>
+                        <Border Background="{Binding SfcKeyValidationBackground}" 
+                                BorderBrush="{Binding SfcKeyValidationBorder}" 
+                                BorderThickness="1" CornerRadius="4" Padding="12,8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding SfcKeyValidationIcon}" 
+                                           FontFamily="Segoe MDL2 Assets" FontSize="18" 
+                                           Foreground="{Binding SfcKeyValidationForeground}" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding SfcKeyValidationText}" FontSize="14" 
+                                           FontWeight="SemiBold" Foreground="{Binding SfcKeyValidationForeground}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 扫描器状态 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <TextBlock Text="扫描器状态" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Scanner 1 (产品) -->
+                            <Border Grid.Column="0" BorderBrush="#FFBDC3C7" BorderThickness="0,0,1,0" Padding="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="Scanner 1 (产品)" FontSize="12" Foreground="#FF7F8C8D"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                        <Border Width="10" Height="10" CornerRadius="5"
+                                                Background="{Binding Scanner1StatusColor}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding Scanner1StatusText}" FontSize="13" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <TextBlock Text="常触发模式" FontSize="10" Foreground="#FF95A5A6" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Scanner 2 (小件) -->
+                            <Border Grid.Column="1" Padding="10,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Scanner 2 (小件)" FontSize="12" Foreground="#FF7F8C8D"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                        <Border Width="10" Height="10" CornerRadius="5"
+                                                Background="{Binding Scanner2StatusColor}" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding Scanner2StatusText}" FontSize="13" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <TextBlock Text="命令触发模式" FontSize="10" Foreground="#FF95A5A6" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ===== 中间：PLC 信号监控区 ===== -->
+            <StackPanel Grid.Column="1" Margin="5,0">
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE95A;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="16" Foreground="White" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="PLC 信号实时监控" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <StackPanel>
+                        <!-- PLC 地址信息 -->
+                        <Border Background="#FFECF0F1" CornerRadius="4" Padding="12" Margin="0,0,0,15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock FontSize="11" Foreground="#FF7F8C8D">
+                                        <Run Text="PLC1: "/><Run Text="{Binding Plc1IpAddress}"/></TextBlock>
+                                    <TextBlock FontSize="11" Foreground="#FF7F8C8D" Margin="0,2,0,0">
+                                        <Run Text="PLC2: "/><Run Text="{Binding Plc2IpAddress}"/></TextBlock>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                    <TextBlock FontSize="11" Foreground="#FF7F8C8D">
+                                        <Run Text="端口1: "/><Run Text="{Binding Plc1Port}"/></TextBlock>
+                                    <TextBlock FontSize="11" Foreground="#FF7F8C8D" Margin="0,2,0,0">
+                                        <Run Text="端口2: "/><Run Text="{Binding Plc2Port}"/></TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- 信号状态网格 -->
+                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                            <!-- D3010 组装状态 (左上) -->
+                            <Border BorderBrush="#FFBDC3C7" BorderThickness="1" CornerRadius="6"
+                                    Padding="15" Margin="0,0,10,10" Background="White">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource StatusIndicatorStyle}"
+                                            Background="{Binding AssemblyStatusColor}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF27AE60"
+                                                              BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="D3010" FontSize="11" Foreground="#FF95A5A6" FontWeight="Bold"/>
+                                        <TextBlock Text="组装状态" FontSize="13" Foreground="#FF2C3E50"/>
+                                        <TextBlock Text="{Binding AssemblyStatusDetailText}" FontSize="16"
+                                                   FontWeight="Bold" Foreground="{Binding AssemblyStatusColor}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- D3003 开始扫码 (右上) -->
+                            <Border BorderBrush="#FFBDC3C7" BorderThickness="1" CornerRadius="6"
+                                    Padding="15" Margin="0,0,0,10" Background="White">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource StatusIndicatorStyle}"
+                                            Background="{Binding StartScanSignalColor}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF27AE60"
+                                                              BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="D3003" FontSize="11" Foreground="#FF95A5A6" FontWeight="Bold"/>
+                                        <TextBlock Text="开始扫码信号" FontSize="13" Foreground="#FF2C3E50"/>
+                                        <TextBlock Text="{Binding StartScanSignalText}" FontSize="16"
+                                                   FontWeight="Bold" Foreground="{Binding StartScanSignalColor}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- D3005 开始压合 (左下) -->
+                            <Border BorderBrush="#FFBDC3C7" BorderThickness="1" CornerRadius="6"
+                                    Padding="15" Margin="0,0,10,10" Background="White">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource StatusIndicatorStyle}"
+                                            Background="{Binding StartPressSignalColor}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF27AE60"
+                                                              BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="D3005" FontSize="11" Foreground="#FF95A5A6" FontWeight="Bold"/>
+                                        <TextBlock Text="开始压合信号" FontSize="13" Foreground="#FF2C3E50"/>
+                                        <TextBlock Text="{Binding StartPressSignalText}" FontSize="16"
+                                                   FontWeight="Bold" Foreground="{Binding StartPressSignalColor}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- D3007 完成压合 (右下) -->
+                            <Border BorderBrush="#FFBDC3C7" BorderThickness="1" CornerRadius="6"
+                                    Padding="15" Margin="0,0,0,10" Background="White">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource StatusIndicatorStyle}"
+                                            Background="{Binding CompletePressSignalColor}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#FF27AE60"
+                                                              BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="D3007" FontSize="11" Foreground="#FF95A5A6" FontWeight="Bold"/>
+                                        <TextBlock Text="完成压合信号" FontSize="13" Foreground="#FF2C3E50"/>
+                                        <TextBlock Text="{Binding CompletePressSignalText}" FontSize="16"
+                                                   FontWeight="Bold" Foreground="{Binding CompletePressSignalColor}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- 压合参数 -->
+                        <Border Background="#FF34495E" CornerRadius="6" Padding="20">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- 压合时间 -->
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE916;" FontFamily="Segoe MDL2 Assets" 
+                                                   FontSize="14" Foreground="#FF3498DB" Margin="0,0,6,0"/>
+                                        <TextBlock Text="压合时间 (D3105)" FontSize="11" Foreground="#FF95A5A6"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <TextBlock Text="{Binding PressTimeValue}" FontSize="32" 
+                                                   FontWeight="Bold" Foreground="White"/>
+                                        <TextBlock Text="s" FontSize="16" Foreground="#FF95A5A6" 
+                                                   Margin="4,8,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- 分隔线 -->
+                                <Border Grid.Column="1" Width="1" Background="#FF5D6D7E" Margin="20,0"/>
+
+                                <!-- 压合温度 -->
+                                <StackPanel Grid.Column="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE9CA;" FontFamily="Segoe MDL2 Assets" 
+                                                   FontSize="14" Foreground="#FFE74C3C" Margin="0,0,6,0"/>
+                                        <TextBlock Text="压合温度 (D3107)" FontSize="11" Foreground="#FF95A5A6"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <TextBlock Text="{Binding PressTemperatureValue}" FontSize="32" 
+                                                   FontWeight="Bold" Foreground="White"/>
+                                        <TextBlock Text="°C" FontSize="16" Foreground="#FF95A5A6" 
+                                                   Margin="4,8,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 系统日志区 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="16" Foreground="White" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="系统日志" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <ListBox x:Name="SystemLogListBox" ItemsSource="{Binding SystemLogs}" BorderThickness="0" 
+                             Background="Transparent" MaxHeight="150"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             behaviors:ListBoxAutoScroll.IsEnabled="True"
+                             ItemTemplate="{StaticResource LogEntryTemplate}"/>
+                </Border>
+            </StackPanel>
+
+            <!-- ===== 右侧：MES 交互与统计区 ===== -->
+            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                <!-- MES 接口状态 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="16" Foreground="White" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="MES 接口调用状态" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <StackPanel>
+                        <!-- Start API -->
+                        <Border BorderBrush="#FFBDC3C7" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="1. Start" FontSize="13" 
+                                           FontWeight="SemiBold" Foreground="#FF2C3E50" Width="100"/>
+                                <TextBlock Grid.Column="1" Text="{Binding StartApiDetail}" FontSize="11" 
+                                           Foreground="#FF7F8C8D" TextTrimming="CharacterEllipsis"/>
+                                <Border Grid.Column="2" Width="12" Height="12" CornerRadius="6"
+                                        Background="{Binding StartApiStatusColor}" Margin="8,0,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF27AE60"
+                                                          BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- GetSfcKey API -->
+                        <Border BorderBrush="#FFBDC3C7" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="2. GetSfcKey" FontSize="13" 
+                                           FontWeight="SemiBold" Foreground="#FF2C3E50" Width="100"/>
+                                <TextBlock Grid.Column="1" Text="{Binding GetSfcKeyApiDetail}" FontSize="11" 
+                                           Foreground="#FF7F8C8D" TextTrimming="CharacterEllipsis"/>
+                                <Border Grid.Column="2" Width="12" Height="12" CornerRadius="6"
+                                        Background="{Binding GetSfcKeyApiStatusColor}" Margin="8,0,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF27AE60"
+                                                          BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- AddSfcKey API -->
+                        <Border BorderBrush="#FFBDC3C7" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="3. AddSfcKey" FontSize="13" 
+                                           FontWeight="SemiBold" Foreground="#FF2C3E50" Width="100"/>
+                                <TextBlock Grid.Column="1" Text="{Binding AddSfcKeyApiDetail}" FontSize="11" 
+                                           Foreground="#FF7F8C8D" TextTrimming="CharacterEllipsis"/>
+                                <Border Grid.Column="2" Width="12" Height="12" CornerRadius="6"
+                                        Background="{Binding AddSfcKeyApiStatusColor}" Margin="8,0,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF27AE60"
+                                                          BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- TestDataCollect2MainChild API -->
+                        <Border BorderBrush="#FFBDC3C7" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="4.TestDataCollect2MainChild" FontSize="13" 
+                                           FontWeight="SemiBold" Foreground="#FF2C3E50" Width="200"/>
+                                <TextBlock Grid.Column="1" Text="{Binding DataCollectApiDetail}" FontSize="11" 
+                                           Foreground="#FF7F8C8D" TextTrimming="CharacterEllipsis"/>
+                                <Border Grid.Column="2" Width="12" Height="12" CornerRadius="6"
+                                        Background="{Binding DataCollectApiStatusColor}" Margin="8,0,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF27AE60"
+                                                          BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Complete API -->
+                        <Border Padding="0,0,0,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="5. Complete" FontSize="13" 
+                                           FontWeight="SemiBold" Foreground="#FF2C3E50" Width="100"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CompleteApiDetail}" FontSize="11" 
+                                           Foreground="#FF7F8C8D" TextTrimming="CharacterEllipsis"/>
+                                <Border Grid.Column="2" Width="12" Height="12" CornerRadius="6"
+                                        Background="{Binding CompleteApiStatusColor}" Margin="8,0,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FF27AE60"
+                                                          BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 生产统计 -->
+                <Border Style="{StaticResource SectionHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="16" Foreground="White" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="生产统计" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Grid.Column="2" Text="{Binding StatsLastUpdated}" FontSize="10" 
+                                   Foreground="#FFBDC3C7" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </Grid>
+                    <Border.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="编辑统计" Command="{Binding EditStatsCommand}"/>
+                            <MenuItem Header="重置统计" Command="{Binding ResetStatsCommand}"/>
+                        </ContextMenu>
+                    </Border.ContextMenu>
+                </Border>
+                <Border Style="{StaticResource ContentAreaStyle}" CornerRadius="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 合格数 -->
+                            <Border Grid.Column="0" BorderBrush="#FFBDC3C7" BorderThickness="0,0,1,0" Padding="0,0,15,0">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" 
+                                                   FontSize="20" Foreground="#FF27AE60" Margin="0,0,8,0"/>
+                                        <TextBlock Text="合格数量" FontSize="12" Foreground="#FF7F8C8D"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding PassCount}" FontSize="42" FontWeight="Bold" 
+                                               Foreground="#FF27AE60" Margin="0,8,0,0"/>
+                                    <TextBlock Text="{Binding PassRateText}" FontSize="11" 
+                                               Foreground="#FF95A5A6" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 不合格数 -->
+                            <Border Grid.Column="1" Padding="15,0,0,0">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xEA39;" FontFamily="Segoe MDL2 Assets" 
+                                                   FontSize="20" Foreground="#FFE74C3C" Margin="0,0,8,0"/>
+                                        <TextBlock Text="不合格数量" FontSize="12" Foreground="#FF7F8C8D"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding FailCount}" FontSize="42" FontWeight="Bold" 
+                                               Foreground="#FFE74C3C" Margin="0,8,0,0"/>
+                                    <TextBlock Text="{Binding FailRateText}" FontSize="11" 
+                                               Foreground="#FF95A5A6" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- 编辑面板（右键"编辑统计"后显示） -->
+                        <Border Grid.Row="1" Background="#FFFDF2E1" CornerRadius="4" 
+                                Padding="12,8" Margin="0,10,0,0"
+                                Visibility="{Binding IsEditingStats, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="合格:" VerticalAlignment="Center" 
+                                           Foreground="#FF7F8C8D" FontSize="12" Margin="0,0,6,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding EditPassCount, UpdateSourceTrigger=PropertyChanged}" 
+                                         Width="70" FontSize="13" VerticalAlignment="Center"
+                                         HorizontalContentAlignment="Right"/>
+
+                                <TextBlock Grid.Column="3" Text="不合格:" VerticalAlignment="Center" 
+                                           Foreground="#FF7F8C8D" FontSize="12" Margin="12,0,6,0"/>
+                                <TextBox Grid.Column="4" Text="{Binding EditFailCount, UpdateSourceTrigger=PropertyChanged}" 
+                                         Width="70" FontSize="13" VerticalAlignment="Center"
+                                         HorizontalContentAlignment="Right"/>
+
+                                <Button Grid.Column="6" Content="保存" Command="{Binding SaveStatsCommand}"
+                                        Padding="10,4" Margin="12,0,6,0" FontSize="12"
+                                        Background="#FF27AE60" Foreground="White" BorderThickness="0"
+                                        Cursor="Hand"/>
+                                <Button Grid.Column="7" Content="取消" Command="{Binding CancelEditStatsCommand}"
+                                        Padding="10,4" FontSize="12"
+                                        Background="#FF95A5A6" Foreground="White" BorderThickness="0"
+                                        Cursor="Hand"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- 总产量 -->
+                <Border Background="#FF2C3E50" CornerRadius="6" Padding="20" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" 
+                                   FontSize="32" Foreground="#FF3498DB" Margin="0,0,15,0"/>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="总产量" FontSize="12" Foreground="#FF95A5A6"/>
+                            <TextBlock Text="{Binding TotalCount}" FontSize="36" FontWeight="Bold" 
+                                       Foreground="White"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========== 底部状态栏 ========== -->
+        <Border Grid.Row="3" Background="#FFECF0F1" BorderBrush="#FFBDC3C7" 
+                BorderThickness="0,1,0,0" Padding="15,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="ShotSki Mahi Assembly Station v1.0" 
+                           FontSize="11" Foreground="#FF7F8C8D"/>
+                <TextBlock Grid.Column="1" Text="{Binding CurrentTimeText}" 
+                           FontSize="11" Foreground="#FF7F8C8D" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="{Binding StationIdText}" 
+                           FontSize="11" Foreground="#FF7F8C8D"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,88 @@
+接口列表:
+
+1、LOGIN_ID对应mes_config里面的LoginID
+3、STATION_NAME对应mes_config里面的Operation
+4、LINE对应mes_config里面的Line
+5、SHOPORDER对应mes_config里面Resource
+6、SCHEDULING_ID对应mes_config里面SchedulingID
+7、CLIENT_ID对应mes_config里面ClientID
+http://10.6.78.14/Service.action?method=Start&param={
+	"LOGIN_ID":"815048",
+	"SFC":"BHY0000006083613",
+	"STATION_ID":"5921",
+	"LINE":"F3-3F-Assy-C1",
+	"SHOPORDER":"Peach_CELL_包装_星尘粉_P2",
+	"SCHEDULING_ID":"4385",
+	"CLIENT_ID":"1"
+}
+PASS返回:
+{"RESULT":"PASS","MESSAGE":"PASS","SERVICE_RUNTIME":10,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 14:39:26.646","SERVER_IP":"10.6.79.214"}
+FAIL返回:
+{"RESULT":"FAIL","MESSAGE":"登录超时,请重新登录! 10.6.79.38:80","CODE":1,"SERVICE_RUNTIME":1,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 15:33:42.657","SERVER_IP":"10.6.79.38"}
+FAIL返回要把"MESSAGE"内容显示到软件界面
+
+
+1、LOGIN_ID对应mes_config里面的LoginID
+2、STATION_NAME对应mes_config里面的Operation
+3、SHOPORDER对应mes_config里面Resource
+4、CLIENT_ID对应mes_config里面ClientID
+5、SFC对应小件码
+http://10.6.78.14/Service.action?method=GetSfcKey&param= {"LOGIN_ID": "5110728",   "SFC": "HG0012",   "CLIENT_ID": "1",   "STATION": "Mahi组装",   "SHOPORDER": "PHA25034_包装_0001JT4_P1"}
+PASS返回:
+{"RESULT":"PASS","MESSAGE":"PASS","SERVICE_RUNTIME":10,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 14:39:26.646","SERVER_IP":"10.6.79.214"}
+FAIL返回:
+{"RESULT":"FAIL","MESSAGE":"登录超时,请重新登录! 10.6.79.38:80","CODE":1,"SERVICE_RUNTIME":1,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 15:33:42.657","SERVER_IP":"10.6.79.38"}
+FAIL返回要把"MESSAGE"内容显示到软件界面
+
+
+1、LOGIN_ID对应mes_config里面的LoginID
+2、STATION_ID对应mes_config里面的StationID   
+3、STATION_NAME对应mes_config里面的Operation
+4、SHOPORDER对应mes_config里面的Resource
+5、DATA_NAME对应setting配置文件里面的RMName
+6、DATA_VALUE对应输入的值
+7、PROJECT_ID对应mes_config里面的PROJECT_ID
+8、PRODUCT_ID对应mes_config里面的PRODUCT_ID
+http://10.6.78.14/Service.action?method=AddSfcKey&param={"LOGIN_ID":"5555914","CLIENT_ID":"1","SFC":"HGVHRG000010001JT4","STATION_ID":"13547","STATION_NAME":"磁铁组装","SHOPORDER":"PHA25034_包装_0001JT4_P1","DATA_NAME":"Mahi","DATA_VALUE":"HG0012","PROJECT_ID":"1541","PRODUCT_ID":"3897"}
+PASS返回:
+{"RESULT":"PASS","MESSAGE":"PASS","SERVICE_RUNTIME":10,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 14:39:26.646","SERVER_IP":"10.6.79.214"}
+FAIL返回:
+{"RESULT":"FAIL","MESSAGE":"登录超时,请重新登录! 10.6.79.38:80","CODE":1,"SERVICE_RUNTIME":1,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 15:33:42.657","SERVER_IP":"10.6.79.38"}
+FAIL返回要把"MESSAGE"内容显示到软件界面
+
+
+1、LOGIN_ID对应mes_config里面的LoginID
+2、PRODUCT_NAME对应mes_config里面的PRODUCT
+3、SHOPORDER_NO对应mes_config里面的Resource
+4、PROJECT_NAME对应mes_config里面的PROJECT
+5、TDS_NAME固定传LOKI
+6、STATION_ID对应mes_config里面的StationID
+7、LINE_NO对应mes_config里面的Line
+8、TEST_STATION对应mes_config里面的Operation
+9、FIXTURE_NO对应mes_config里面的traceStationId
+压合时间、压合温度不是固定值，分别为D3105和D3107的值
+http://10.6.78.14/Service.action?method=TestDataCollect2MainChild&param={LOGIN_ID:5550466,CLIENT_ID:1,SN:HGVHRG000000001JT4,PRODUCT_NAME:A613-40153,SHOPORDER_NO:PHA25034_包装_0001JT4_P1,PROJECT_NAME:PHA25034,TDS_NAME:LOKI,STARTIME:'2026-03-08 10:21:36',STATION_ID:13547,LINE_NO:F2-1F-Assy-A1,TEST_STATION:磁铁组装,FIXTURE_NO:BYHZ_F5-1F-Assy-B_03_spring-finger-assy,TEST_RESULT:PASS,TEST_DATA_LIST:[{NAME:压合时间,VALUE:"20"},{NAME:压合温度,VALUE:"80"}]}
+PASS返回:
+{"RESULT":"PASS","MESSAGE":"PASS","SERVICE_RUNTIME":10,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 14:39:26.646","SERVER_IP":"10.6.79.214"}
+FAIL返回:
+{"RESULT":"FAIL","MESSAGE":"登录超时,请重新登录! 10.6.79.38:80","CODE":1,"SERVICE_RUNTIME":1,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 15:33:42.657","SERVER_IP":"10.6.79.38"}
+FAIL返回要把"MESSAGE"内容显示到软件界面
+
+
+1、LOGIN_ID对应mes_config里面的LoginID
+2、CLIENT_ID对应mes_config里面ClientID
+3、SFC对应“产品码”
+4、SCHEDULING_ID对应mes_config里面SchedulingID
+5、STATION_ID对应mes_config里面的StationID
+http://10.6.78.14/Service.action?method=Complete&param={
+	"LOGIN_ID":"2827304",
+	"CLIENT_ID":"1",
+	"SFC":"BHY0000006083613",
+	"SCHEDULING_ID":"4385",
+	"STATION_ID":"5921",
+}
+PASS返回:
+{"RESULT":"PASS","MESSAGE":"PASS","SERVICE_RUNTIME":10,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 14:39:26.646","SERVER_IP":"10.6.79.214"}
+FAIL返回:
+{"RESULT":"FAIL","MESSAGE":"登录超时,请重新登录! 10.6.79.38:80","CODE":1,"SERVICE_RUNTIME":1,"IP_ADDRESS":"10.76.78.174","TIME":"2023-10-25 15:33:42.657","SERVER_IP":"10.6.79.38"}
+FAIL返回要把"MESSAGE"内容显示到软件界面
